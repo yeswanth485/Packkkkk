@@ -1,0 +1,109 @@
+{
+  "name": "PackAI - Auto Packaging Prediction Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "seconds", "secondsInterval": 30 }] }
+      },
+      "name": "Poll New Orders",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300],
+      "id": "1"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/orders",
+        "authentication": "headerAuth",
+        "method": "GET",
+        "options": {}
+      },
+      "name": "Fetch Pending Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 300],
+      "id": "2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{$json.status}}", "operation": "equals", "value2": "pending" }]
+        }
+      },
+      "name": "Filter Pending Only",
+      "type": "n8n-nodes-base.if",
+      "position": [680, 300],
+      "id": "3"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/predict-packaging",
+        "authentication": "headerAuth",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "order_id",  "value": "={{$json.id}}" },
+            { "name": "length",    "value": "={{$json.length}}" },
+            { "name": "width",     "value": "={{$json.width}}" },
+            { "name": "height",    "value": "={{$json.height}}" },
+            { "name": "weight",    "value": "={{$json.weight}}" }
+          ]
+        }
+      },
+      "name": "Run Packaging Prediction",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 200],
+      "id": "4"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/orders/{{$json.order_id}}/result",
+        "authentication": "headerAuth",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recommended_box",  "value": "={{$json.recommended_box}}" },
+            { "name": "confidence_score", "value": "={{$json.confidence_score}}" },
+            { "name": "efficiency_score", "value": "={{$json.efficiency_score}}" },
+            { "name": "baseline_cost",    "value": "={{$json.baseline_cost}}" },
+            { "name": "optimized_cost",   "value": "={{$json.optimized_cost}}" },
+            { "name": "savings",          "value": "={{$json.savings}}" }
+          ]
+        }
+      },
+      "name": "Store Prediction Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1120, 200],
+      "id": "5"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.DASHBOARD_WEBHOOK_URL}}",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event",       "value": "order_optimized" },
+            { "name": "order_id",    "value": "={{$json.order_id}}" },
+            { "name": "recommended", "value": "={{$json.recommended_box}}" },
+            { "name": "savings",     "value": "={{$json.savings}}" }
+          ]
+        }
+      },
+      "name": "Trigger Dashboard Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1340, 200],
+      "id": "6"
+    }
+  ],
+  "connections": {
+    "Poll New Orders":         { "main": [[{ "node": "Fetch Pending Orders",        "type": "main", "index": 0 }]] },
+    "Fetch Pending Orders":    { "main": [[{ "node": "Filter Pending Only",          "type": "main", "index": 0 }]] },
+    "Filter Pending Only":     { "main": [[{ "node": "Run Packaging Prediction",     "type": "main", "index": 0 }], []] },
+    "Run Packaging Prediction":{ "main": [[{ "node": "Store Prediction Result",      "type": "main", "index": 0 }]] },
+    "Store Prediction Result": { "main": [[{ "node": "Trigger Dashboard Webhook",    "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": ["packAI", "automation", "packaging"]
+}
