@@ -1,7 +1,7 @@
 services:
   # ─── BACKEND (FastAPI) ───────────────────────────────────────────────────────
   - type: web
-    name: packai-backend
+    name: packkkkk-backend
     runtime: python
     rootDir: backend
     plan: free
@@ -11,7 +11,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: packai-db
+          name: packkkkk-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -42,19 +42,19 @@ services:
       - key: NEXT_PUBLIC_API_URL
         # IMPORTANT: Next.js needs the FULL public URL at build time (e.g., https://packai-backend.onrender.com)
         fromService:
-          name: packai-backend
+          name: packkkkk-backend
           type: web
           property: host
       - key: NEXT_PUBLIC_WS_URL
         # ws:// or wss:// will be auto-derived from NEXT_PUBLIC_API_URL in useWebSocket.ts
         fromService:
-          name: packai-backend
+          name: packkkkk-backend
           type: web
           property: host
 
 # ─── POSTGRESQL DATABASE ─────────────────────────────────────────────────────
 databases:
-  - name: packai-db
+  - name: packkkkk-db
     plan: free
     databaseName: packaging_db
     user: packai_user
