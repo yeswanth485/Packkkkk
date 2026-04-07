@@ -21,7 +21,12 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting AI Packaging Automation Platform...")
-    await init_db()
+    try:
+        await init_db()
+    except Exception as e:
+        logger.error(f"CRITICAL: Failed to initialize database: {e}")
+        logger.error("The backend will start, but database-dependent features will fail.")
+    
     load_ml_model()
     db_ok = await check_db_connection()
     logger.info(f"Database connected: {db_ok}")
