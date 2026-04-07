@@ -14,9 +14,13 @@ class Settings(BaseSettings):
 
     def __init__(self, **values):
         # Render or users sometimes inject literal double quotes in env vars
-        for k, v in os.environ.items():
-            if isinstance(v, str) and len(v) >= 2 and v[0] == v[-1] and v.startswith(('"', "'")):
-                os.environ[k] = v[1:-1]
+        for k, v in list(os.environ.items()):
+            try:
+                if isinstance(v, str) and len(v) >= 2 and v[0] == v[-1] and v[0] in ('"', "'"):
+                    os.environ[k] = v[1:-1]
+            except Exception:
+                pass
+        
         
         super().__init__(**values)
         # Render provides DATABASE_URL as postgres:// — fix for asyncpg
