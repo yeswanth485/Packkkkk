@@ -5,7 +5,7 @@ services:
     runtime: python
     rootDir: backend
     plan: free
-    buildCommand: pip install -r requirements.txt && python ml_engine/train_model.py
+    buildCommand: pip install -r requirements.txt && python ../ml_engine/train_model.py
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
@@ -16,7 +16,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ML_MODEL_PATH
-        value: ml_engine/packaging_model.pkl
+        value: ../ml_engine/packaging_model.pkl
       - key: SHIPPING_RATE_PER_KG
         value: "45.0"
       - key: DIM_WEIGHT_DIVISOR
