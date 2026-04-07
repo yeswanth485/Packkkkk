@@ -2,8 +2,18 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 
 // Auto-detect wss:// or ws:// from the API URL
-const _apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
-const WS_URL = _apiUrl.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://');
+const getWsUrl = () => {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  url = url.replace(/\/$/, '');
+  
+  if (url.includes('onrender.com') && !url.startsWith('http')) {
+    url = `https://${url}`;
+  }
+  
+  return url.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://');
+};
+
+const WS_URL = getWsUrl();
 
 interface WSMessage {
   type: string;

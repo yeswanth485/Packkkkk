@@ -1,4 +1,18 @@
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const getBaseUrl = () => {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  
+  // Remove any trailing slash
+  url = url.replace(/\/$/, '');
+  
+  // If it's a production host but lacks a protocol, add https://
+  if (url.includes('onrender.com') && !url.startsWith('http')) {
+    url = `https://${url}`;
+  }
+  
+  return url;
+};
+
+const API_URL = getBaseUrl();
 
 export interface ApiError {
   detail: string;
