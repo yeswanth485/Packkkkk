@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     DATABASE_SYNC_URL: str = "postgresql://postgres:password@localhost:5432/packaging_db"
 
     def __init__(self, **values):
+        # Render or users sometimes inject literal double quotes in env vars
+        for k, v in os.environ.items():
+            if isinstance(v, str) and len(v) >= 2 and v[0] == v[-1] and v.startswith(('"', "'")):
+                os.environ[k] = v[1:-1]
+        
         super().__init__(**values)
         # Render provides DATABASE_URL as postgres:// — fix for asyncpg
         raw = os.environ.get("DATABASE_URL", "")
