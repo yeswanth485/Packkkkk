@@ -99,18 +99,24 @@ async function request<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  console.log(`[API] Calling: ${API_URL}${path}`);
+  try {
+    const res = await fetch(`${API_URL}${path}`, { ...options, headers });
 
-  if (!res.ok) {
-    let msg = `HTTP ${res.status}`;
-    try {
-      const err: ApiError = await res.json();
-      msg = err.detail || msg;
-    } catch {}
-    throw new Error(msg);
+    if (!res.ok) {
+      let msg = `HTTP ${res.status}`;
+      try {
+        const err: ApiError = await res.json();
+        msg = err.detail || msg;
+      } catch {}
+      throw new Error(msg);
+    }
+
+    return res.json();
+  } catch (err) {
+    console.error(`[API] Fetch error for ${path}:`, err);
+    throw err;
   }
-
-  return res.json();
 }
 
 export const api = {
