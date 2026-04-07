@@ -16,16 +16,21 @@ export default function LoginPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(`[Form] Submitting ${mode} for: ${form.email}`);
     setError('');
     setLoading(true);
     try {
       if (mode === 'login') {
+        console.log("[Form] Calling login context...");
         await login(form.email, form.password);
       } else {
+        console.log("[Form] Calling register context...");
         await register(form.email, form.password, form.name);
       }
+      console.log("[Form] Success! Redirecting to /dashboard...");
       router.push('/dashboard');
     } catch (err: unknown) {
+      console.error("[Form] Final capture error:", err);
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setLoading(false);

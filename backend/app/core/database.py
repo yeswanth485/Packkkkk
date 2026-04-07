@@ -38,10 +38,15 @@ async def get_db():
             await session.close()
 
 async def init_db():
+    logger.info("Initializing database tables...")
     from app.models import user_model, order_model, packaging_result_model
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables initialized successfully")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables initialized successfully")
+    except Exception as e:
+        logger.error(f"Error during init_db: {e}")
+        raise
 
 async def check_db_connection():
     try:
