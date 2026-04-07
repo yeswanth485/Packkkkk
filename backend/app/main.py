@@ -58,8 +58,8 @@ _allowed_origins.append("https://*.onrender.com")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # Tighten this once you know your frontend URL
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
